@@ -8,6 +8,15 @@ main_router = APIRouter(prefix="/vlp", tags=["VLP"])
 @main_router.post("/calc", response_model=VlpCalcResponse)
 def calc_vlp(vlp_in: VlpCalcRequest):
     """Расчёт VLP по исходным данным и сохранение в Базу"""
-    # функция считающая VLP
     from src.calculations.vlp import calc_vlp as vlp_calculation  # noqa
-    pass
+    data = dict(
+        inclinometry=vlp_in.inclinometry.dict(),
+        casing=vlp_in.casing.dict(),
+        tubing=vlp_in.tubing.dict(),
+        pvt=vlp_in.pvt.dict(),
+        p_wh=vlp_in.p_wh,
+        geo_grad=vlp_in.geo_grad,
+        h_res=vlp_in.h_res
+    )
+    return vlp_calculation(**data)
+
