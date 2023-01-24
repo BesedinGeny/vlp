@@ -26,5 +26,6 @@ class VLP(Base):
     """Результат входных параметров"""
     __tablename__ = "vlp"
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    well_id = sa.Column(sa.ForeignKey('well_data.id'))
     q_liq = sa.Column(sa.String)
     p_wf = sa.Column(sa.String)

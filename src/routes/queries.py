@@ -53,3 +53,50 @@ def save_vlp_data(session, vlp, init_data_id):
     )
     session.add(vlp)
     session.commit()
+
+
+def cache_calculations_fetch(session, well_raw_data):
+    well_data_flat_dict = dict_to_flat(well_raw_data)
+
+    # kwargs = {f"WellData.{field}":value for field, value in well_data_flat_dict.items()}
+    well_data = session.query(WellData).filter_by(**well_data_flat_dict).limit(1).first()
+
+    if not well_data:
+        return
+
+    vlp = session.query(VLP).filter(VLP.well_id == well_data.id).limit(1).first()
+    if not vlp:
+        print("Have input but no output.")
+        # unknown case
+        return
+    return vlp
+
+
+def cache_calculation_store(session, well_data, vlp):
+    flat_data = dict_to_flat(well_data)
+    well_data_obj = WellData(**flat_data)
+    session.add(well_data_obj)
+    session.commit()
+    vlp_obj = VLP(
+        well_id=well_data_obj.id,
+        q_liq=str(vlp["q_liq"]),
+        p_wf=str(vlp["p_wf"])
+    )
+    session.add(vlp_obj)
+    session.commit()
+
+    return vlp_obj
+
+
+def dict_to_flat(data: dict) -> dict:
+    """Makes nesting dict flat"""
+    result = {}
+    for key, value in data.items():
+        if isinstance(value, dict):
+            result.update(**dict_to_flat(value))
+        elif isinstance(value, list):
+            result.update({key: str(value)})
+        else:
+            result.update({key: value})
+    return result
+

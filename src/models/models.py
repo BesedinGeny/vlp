@@ -88,3 +88,4 @@ class VlpCalcResponse(BaseModel):
                 ]
             }
         }
+        orm_mode = True
